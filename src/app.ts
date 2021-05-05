@@ -21,7 +21,7 @@ const main = async () => {
     let byteCode = `0x${args.byteCode}`;
     let account = web3.eth.accounts.privateKeyToAccount(`0x${args.key}`);
     let gas = await web3.eth.getBlock("latest")
-    let gasP = web3.utils.toHex(web3.utils.toWei('70', 'gwei'));
+    let gasP = await web3.eth.getGasPrice()
 
     let contract = new web3.eth.Contract(abi);
 
