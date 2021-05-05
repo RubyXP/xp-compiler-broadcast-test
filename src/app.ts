@@ -1,6 +1,5 @@
 import { Command } from 'commander';
 import Web3 from 'web3';
-import { Transaction } from '@ethereumjs/tx'
 
 const app = new Command();
 
@@ -16,28 +15,28 @@ const abi_raw = '[{"inputs":[],"name":"send","outputs":[],"stateMutability":"pay
 const args = app.opts();
 
 const main = async () => {
-    let web3 = new Web3(args.node);
-    let abi = JSON.parse(abi_raw);
-    let byteCode = `0x${args.byteCode}`;
-    let account = web3.eth.accounts.privateKeyToAccount(`0x${args.key}`);
-    let gas = await web3.eth.getBlock("latest")
-    let gasP = await web3.eth.getGasPrice()
+    const web3 = new Web3(args.node);
+    const abi = JSON.parse(abi_raw);
+    const byteCode = `0x${args.byteCode}`;
+    const account = web3.eth.accounts.privateKeyToAccount(`0x${args.key}`);
+    const gas = await web3.eth.getBlock("latest")
+    const gasP = await web3.eth.getGasPrice()
 
     let contract = new web3.eth.Contract(abi);
 
     async function send(transaction: any, to?: string) {
-        let options = {
+        const options = {
             from: account.address,
             to  : to,
             data: transaction.encodeABI(),
             gas : gas.gasLimit,
             gasPrice: gasP
         };
-        let signedTransaction = await web3.eth.accounts.signTransaction(options, `0x${args.key}`);
-        return await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction!!);
+        const signedTransaction = await web3.eth.accounts.signTransaction(options, `0x${args.key}`);
+        return await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction!);
     }
 
-    let deployed = await send(contract.deploy({data: byteCode}));
+    const deployed = await send(contract.deploy({data: byteCode}));
     console.log("Deployed contract address:", deployed.contractAddress);
 
     const tx = await account.signTransaction({
@@ -50,11 +49,11 @@ const main = async () => {
         "chainId": 3,
     });
 
-    const txid = await web3.eth.sendSignedTransaction(tx.rawTransaction!!);
+    const txid = await web3.eth.sendSignedTransaction(tx.rawTransaction!);
     console.log("sent wei to contract. hash:", txid.transactionHash)
     contract = new web3.eth.Contract(abi, deployed.contractAddress);
 
-    let sendTx = await send(contract.methods.send(), deployed.contractAddress);
+    const sendTx = await send(contract.methods.send(), deployed.contractAddress);
     console.log("Executed contract! TxHash:", sendTx.transactionHash)
 }
 
