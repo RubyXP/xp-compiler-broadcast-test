@@ -6,7 +6,8 @@ const app = new Command();
 app
   .option('-b --byte-code <byte_code>', 'contract byte code')
   .option('-n --node <node_uri>', 'eth node uri')
-  .option('-k --key <private_key>', 'private key');
+  .option('-k --key <private_key>', 'private key')
+  .option('--broadcast-only', 'don\'t send any money to the contract');
 
 app.parse(process.argv);
 
@@ -38,6 +39,9 @@ const main = async () => {
 
     const deployed = await send(contract.deploy({data: byteCode}));
     console.log("Deployed contract address:", deployed.contractAddress);
+
+	if (args.broadcastOnly)
+		return;
 
     const tx = await account.signTransaction({
         "from": account.address,
